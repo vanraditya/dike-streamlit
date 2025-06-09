@@ -5,8 +5,8 @@ import numpy as np
 import pickle
 
 # Load model and scaler
-MODEL_PATH = '../models/mlp_model_final.pt'
-SCALER_PATH = '../models/scaler.pkl'
+MODEL_PATH = 'models/mlp_model_final.pt'
+SCALER_PATH = 'models/scaler.pkl'
 
 class MLPClassifier(nn.Module):
     def __init__(self, input_size=5):
