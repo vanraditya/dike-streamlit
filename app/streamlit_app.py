@@ -11,7 +11,7 @@ SCALER_PATH = 'models/scaler.pkl'
 class MLPClassifier(nn.Module):
     def __init__(self, input_size=5):
         super(MLPClassifier, self).__init__()
-        self.network = nn.Sequential(
+        self.model = nn.Sequential(
             nn.Linear(input_size, 16),
             nn.ReLU(),
             nn.Linear(16, 8),
@@ -21,7 +21,7 @@ class MLPClassifier(nn.Module):
         )
 
     def forward(self, x):
-        return self.network(x)
+        return self.model(x)
 
 @st.cache_resource
 def load_model_and_scaler():
