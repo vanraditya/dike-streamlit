@@ -1,6 +1,8 @@
-pandas
+streamlit
+torch
 numpy
+pandas
 scikit-learn
+imbalanced-learn
 joblib
 ipykernel
-streamlit
