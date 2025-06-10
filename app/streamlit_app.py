@@ -27,7 +27,7 @@ class MLP(nn.Module):
 
 @st.cache_resource
 def load_model_and_scaler():
-    model = MLPClassifier()
+    model = MLP(input_dim=5)  # ✅ Correct class and input_dim
     model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
     model.eval()
 
@@ -35,6 +35,7 @@ def load_model_and_scaler():
         scaler = pickle.load(f)
 
     return model, scaler
+
 
 model, scaler = load_model_and_scaler()
 
