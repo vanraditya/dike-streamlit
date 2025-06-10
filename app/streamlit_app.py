@@ -66,7 +66,8 @@ if option == 'Manual Entry':
 
 else:
     st.markdown("### Upload CSV file for inference")
-    uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
+    uploaded_file = st.file_uploader("Upload X_inference.csv (features)", type="csv")
+    uploaded_labels = st.file_uploader("Upload y_inference.csv (true labels)", type="csv")
 
     if uploaded_file is not None:
         try:
@@ -83,8 +84,20 @@ else:
                 df['Prediction'] = predictions
                 df['Prediction Label'] = df['Prediction'].map({0: 'Benign', 1: 'Malware'})
 
-                st.success("✅ Prediction completed.")
-                st.dataframe(df)
+                # If ground truth is uploaded, evaluate
+                if uploaded_labels is not None:
+                    y_true = pd.read_csv(uploaded_labels).values.flatten()
+                    if len(y_true) == len(predictions):
+                        correct = (y_true == predictions).sum()
+                        total = len(y_true)
+                        accuracy = correct / total * 100
+                        st.success(f"✅ Prediction completed: {correct}/{total} correct ({accuracy:.2f}%)")
+                    else:
+                        st.warning("⚠️ Mismatch in number of rows between X and y inference files.")
+                else:
+                    st.success("✅ Prediction completed.")
+
+                st.dataframe(df.head(10))  # optional: show preview
 
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
