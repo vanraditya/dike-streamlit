@@ -2,7 +2,7 @@ import streamlit as st
 import torch
 import torch.nn as nn
 import numpy as np
-import pickle
+import joblib
 
 # Load model and scaler
 MODEL_PATH = 'models/mlp_model_final.pt'
@@ -31,8 +31,7 @@ def load_model_and_scaler():
     model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
     model.eval()
 
-    with open(SCALER_PATH, 'rb') as f:
-        scaler = pickle.load(f)
+    scaler = joblib.load(SCALER_PATH)
 
     return model, scaler
 
