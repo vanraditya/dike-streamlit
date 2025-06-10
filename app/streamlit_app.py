@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import joblib
 
-# Load model and scaler
-MODEL_PATH = 'models/mlp_model_final.pt'
-SCALER_PATH = 'models/scaler.pkl'
+# Define shared constants
+feature_names = ['spyware', 'encrypter', 'downloader', 'backdoor', 'ransomware']
 
+# Model definition
 class MLP(nn.Module):
     def __init__(self, input_dim):
         super(MLP, self).__init__()
@@ -26,21 +26,29 @@ class MLP(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+# Load model and scaler dynamically
 @st.cache_resource
-def load_model_and_scaler():
+def load_model_and_scaler(model_type):
+    if model_type == 'Obfuscated':
+        model_path = 'models/mlp_model_obfuscated.pt'
+        scaler_path = 'models/scaler_obfuscated.pkl'
+    else:
+        model_path = 'models/mlp_model_final.pt'
+        scaler_path = 'models/scaler.pkl'
+
     model = MLP(input_dim=5)
-    model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
-    scaler = joblib.load(SCALER_PATH)
+    scaler = joblib.load(scaler_path)
     return model, scaler
 
-model, scaler = load_model_and_scaler()
-feature_names = ['spyware', 'encrypter', 'downloader', 'backdoor', 'ransomware']
-
-# UI
+# UI starts here
 st.title("🧠 Malware Detection using MLP (5 Features)")
-st.markdown("Select input method:")
 
+model_type = st.radio("Choose model version:", ['Original', 'Obfuscated'])
+model, scaler = load_model_and_scaler(model_type)
+
+st.markdown("Select input method:")
 option = st.radio("Choose input type", ['Manual Entry', 'CSV File Upload'])
 
 if option == 'Manual Entry':
@@ -84,7 +92,6 @@ else:
                 df['Prediction'] = predictions
                 df['Prediction Label'] = df['Prediction'].map({0: 'Benign', 1: 'Malware'})
 
-                # If ground truth is uploaded, evaluate
                 if uploaded_labels is not None:
                     y_true = pd.read_csv(uploaded_labels).values.flatten()
                     if len(y_true) == len(predictions):
@@ -97,7 +104,7 @@ else:
                 else:
                     st.success("✅ Prediction completed.")
 
-                st.dataframe(df.head(10))  # optional: show preview
+                st.dataframe(df.head(10))
 
                 csv = df.to_csv(index=False).encode('utf-8')
                 st.download_button(
